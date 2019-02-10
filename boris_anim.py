@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
+os.environ['PATH'] += os.pathsep + os.path.realpath('.\\boris\\.libs')
 import boris
 
 plt.rcParams['animation.ffmpeg_path'] = 'D:\\source\\Libs\\ffmpeg-20180521-c24d247-win64-static\\bin\\ffmpeg.exe'
@@ -16,7 +18,7 @@ def E(r, t):
 def B(r, t):
     d = np.sqrt(r[0]**2 + r[1]**2)
     b0 = 1/d
-    return np.array([-b0*r[1]/d, b0*r[1]/d, 0.5])
+    return np.array([-b0*r[1]/d, b0*r[0]/d, 0.5])
 
 
 r = np.array([1., 0., 0.])
@@ -40,9 +42,9 @@ part, = a3.plot([r[0]], [r[1]], [r[2]], 'ro')
 
 def update(f):
     global t
-    t += .5 * dt
+    t += 0.5 * dt
     data[f] = boris_step(r, v, E, B, q, m, dt, t)
-    t += .5 * dt
+    t += 0.5 * dt
     traj.set_data(data[:f,0], data[:f,1])
     traj.set_3d_properties(data[:f,2])
     part.set_data(data[f,0], data[f,1])
