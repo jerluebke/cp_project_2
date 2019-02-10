@@ -22,11 +22,12 @@ def B(r, t):
 
 
 r = np.array([1., 0., 0.])
-v = np.array([0., 1., 0.])
+#  v = np.array([0.05, -0.05, 0.055])
+v = np.array([1., 0., 0.])
 q = m = 1
 dt = 0.1
 t = 0
-tmax = 100
+#  tmax = 100
 frames = 1000
 data = np.zeros((frames, 3))
 data[0] = r
@@ -43,7 +44,7 @@ part, = a3.plot([r[0]], [r[1]], [r[2]], 'ro')
 def update(f):
     global t
     t += 0.5 * dt
-    data[f] = boris_step(r, v, E, B, q, m, dt, t)
+    data[f] = boris_step(r, v, q, m, dt, t)
     t += 0.5 * dt
     traj.set_data(data[:f,0], data[:f,1])
     traj.set_3d_properties(data[:f,2])
@@ -56,6 +57,9 @@ def update(f):
     a3.set_ylim3d(ymin-.1, ymax+.1)
     a3.set_zlim3d(zmin-.1, zmax+.1)
     return traj, part
+
+#  anim = animation.FuncAnimation(fig, update, range(1, frames), blit=True,
+#                                 repeat=False)
 
 if __name__ == '__main__':
     FFMpegWriter = animation.FFMpegWriter(fps=30)
