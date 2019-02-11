@@ -1,13 +1,13 @@
 program llist_test
-    use llist_module
-    use data_module
+    use llist
+    use lldata
     implicit none
 
     type(list_t), pointer :: la => null(), node => null()
     type(particle_t), target :: pa, pb, pc
     type(particle_ptr) :: p_ptr
-    type(field_t), target :: fa, fb
-    type(field_prt) :: f_ptr
+    type(box_t), target :: fa, fb
+    type(box_ptr) :: f_ptr
 
     fa%particles => null()
     fb%particles => null()

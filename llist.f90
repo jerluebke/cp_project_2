@@ -1,4 +1,26 @@
-module llist_module
+! MODULE: llist
+! simple linked list implementation taken from
+!   http://fortranwiki.org/fortran/show/gen_list
+! and slightly modified
+!
+! PUBLIC VARIABLES
+! ================
+! list_data
+!
+! TYPES
+! =====
+! list_t
+!
+! PROCEDURES
+! ==========
+! list_init
+! list_free
+! list_insert_data
+! list_insert_node
+! list_pop_next
+! list_remove_next
+! 
+module llist
     implicit none
 
     ! public variable for casting an argument of arbitrary type to list_t's 
@@ -14,6 +36,8 @@ module llist_module
     ! data  :   pointer to integer array holding the nodes data
     ! next  :   pointer to list_t, the next node in the linked list
     type :: list_t
+        integer(16) :: key
+        integer :: coords(3)
         integer, dimension(:), pointer :: data => null()
         type(list_t), pointer :: next => null()
     end type list_t
@@ -130,6 +154,28 @@ contains
     end function list_pop_next
 
 
-end module llist_module
+    ! SUBROUTINE: list_remove_next
+    ! deallocate and nullify node after `self` and its data (if present)
+    !
+    ! PARAMETERS
+    ! ==========
+    ! self  :   pointer to list_t, self%next will be removed
+    subroutine list_remove_next(self)
+        type(list_t), pointer :: self, next
+
+        next => self%next
+        if (associated(next)) then
+            self%next => next%next
+            if (associated(next%data)) then
+                deallocate(next%data)
+                nullify(next%data)
+            end if
+            deallocate(next)
+            nullify(next)
+        end if
+    end subroutine list_remove_next
+
+
+end module llist
 
 ! vim: set ff=unix tw=132 sw=4 ts=4 et ic ai :
