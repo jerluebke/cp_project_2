@@ -12,15 +12,9 @@
 module boris_module
     implicit none
 
-    public  :: boris_step
-    private ::                  &
-        cross3,                 &
-        Efield,                 &
-        Bfield,                 &
-        b_field_zylindrical,    &
-        b_field_magnetic_mirror,&
-        b_field_const_z,        &
-        e_field_const_y
+    private
+
+    public :: boris_step
 
 contains
 
