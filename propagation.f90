@@ -1,3 +1,14 @@
+! TODO
+! write morton-encoding code
+! clean up this code
+! consider splitting `time_step` into multiple smaller subroutines
+! in llist: add list_put
+! clean up list_t interface
+! clean up lldata
+!
+! write small test program
+! fix ll-text program
+!
 module propagation
     use llist
     use lldata
@@ -49,7 +60,6 @@ contains
 
         allocate(particle_coords(d,n))
         allocate(boxes_coords(d,domain_size))
-
     end subroutine prop_init
 
 
@@ -136,6 +146,11 @@ contains
             c_box_p => c_box_p%next
         end do
     end subroutine time_step
+
+
+    subroutine cleanup
+        ! TODO
+    end subroutine cleanup
 
 end module propagation
 

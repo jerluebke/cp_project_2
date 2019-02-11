@@ -176,6 +176,25 @@ contains
     end subroutine list_remove_next
 
 
+    ! SUBROUTINE: list_put
+    ! store `data` in node `self`
+    !
+    ! PARAMETERS
+    ! ==========
+    ! self  :   pointer to list_t, node in which to store the data
+    ! data  :   interger array, data to be stored in given node
+    subroutine list_put(self, data)
+        type(list_t), pointer :: self
+        integer, dimension(:), intent(in) :: data
+
+        if (associated(self%data)) then
+            deallocate(self%data)
+            nullify(self%data)
+        end if
+        self%data = data
+    end subroutine
+
+
 end module llist
 
 ! vim: set ff=unix tw=132 sw=4 ts=4 et ic ai :
