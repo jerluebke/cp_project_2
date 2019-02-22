@@ -1,8 +1,6 @@
 ! TODO
-! write morton-encoding code
 ! clean up this code
 ! consider splitting `time_step` into multiple smaller subroutines
-! in llist: add list_put
 ! clean up list_t interface
 ! clean up lldata
 !
@@ -12,6 +10,7 @@
 module propagation
     use llist
     use lldata
+    use morton
     implicit none
 
     private
@@ -137,7 +136,7 @@ contains
             !     j = j + 1
             ! end do
             if (j .eq. 1) then      ! the box is empty
-                list_remove_next(c_box_prev)
+                call list_remove_next(c_box_prev)
             else
                 particle_coords(:,i) = c_box_p%coords
             end if

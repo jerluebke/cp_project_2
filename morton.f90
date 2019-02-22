@@ -1,37 +1,62 @@
+! MODULE: morton
+! morton encoding in 3 dimensions
+! for reference see:
+!   https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
+!
+! PROCEDURES
+! ==========
+! morton_encode
+! morton_neighbour
+! split3
 module morton
     implicit none
 
     private
 
-    integer(8), dimension(6), parameter ::  &
-        B = [                               &
-            ! int(z'1F FFFF', 8),
-            int(o'7 777 777', 8),                   &
-            ! int(z'1F 0000 0000 FFFF', 8),
-            int(o'370 000 000 000 177 777', 8),     &
-            ! int(z'1F 0000 FF00 00FF', 8),
-            int(o'370 000 037 700 000 377', 8),     &
-            ! int(z'100F 00F0 0F00 F00F', 8),
-            int(o'100 170 017 001 700 170 017', 8), &
-            ! int(z'10C3 0C30 C30C 30C3', 8),
-            int(o'103 030 303 030 303 030 303', 8), &
-            ! int(z'1249 2492 4924 9249', 8)
-            int(o'111 111 111 111 111 111 111, 8'), &
+    public :: morton_encode, morton_neighbour
+
+
+    ! MAGIC BITS (in octal representation)
+    ! B: bit masks
+    integer(8), dimension(6), parameter ::      &
+        B = [                                   &
+            int(o'7777777', 8),                 &
+            int(o'370000000000177777', 8),      &
+            int(o'370000037700000377', 8),      &
+            int(o'100170017001700170017', 8),   &
+            int(o'103030303030303030303', 8),   &
+            int(o'111111111111111111111', 8)    &
         ]
+
+    ! S: shifts
     integer, dimension(5), parameter :: S = [32, 16, 8, 4, 2]
-    integer(8), dimension(2,3), parameter ::        &
-        M = reshape([                               &
-            int(o'111 111 111 111 111 111 111', 8), &
-            int(o'666 666 666 666 666 666 666', 8), &
-            int(o'222 222 222 222 222 222 222', 8), &
-            int(o'555 555 555 555 555 555 555', 8), &
-            int(o'444 444 444 444 444 444 444', 8), &
-            int(o'333 333 333 333 333 333 333', 8)  &
+
+    ! M: bit masks for neighbouring keys
+    integer(8), dimension(2,3), parameter ::    &
+        M = reshape([                           &
+            int(o'111111111111111111111', 8),   &
+            int(o'666666666666666666666', 8),   &
+            int(o'222222222222222222222', 8),   &
+            int(o'555555555555555555555', 8),   &
+            int(o'444444444444444444444', 8),   &
+            int(o'333333333333333333333', 8)    &
         ], [2, 3])
 
 
 contains
 
+    ! FUNCTION: morton_encode
+    ! compute morton key from 3d coordinates (x, y, z)
+    !
+    ! PARAMETERS
+    ! ==========
+    ! coords    :   integer-array (1d, len 3)
+    !
+    ! RETURNS
+    ! =======
+    ! 64bit-integer, morton key of coords
+    !
+    ! NOTE: only the first 63 bits are actually in use
     function morton_encode(coords) result(key)
         integer(8), dimension(3), intent(in) :: coords
         integer(8) :: key
@@ -42,6 +67,17 @@ contains
     end function morton_encode
 
 
+    ! FUNCTION: split3
+    ! in binary representation move bits of i three positions apart, e.g.
+    !   0b000011 -> 0b001001
+    !
+    ! PARAMETERS
+    ! ==========
+    ! i     :   integer to split
+    !
+    ! RETURNS
+    ! =======
+    ! 64bit-integer
     function split3(i) result(x)
         integer(8), intent(in) :: i
         integer(8) :: x
@@ -55,6 +91,25 @@ contains
     end function split3
 
 
+    ! FUNCTION: morton_neighbour
+    ! compute the neighbour of key by adding/substracting 1 to/from the
+    !  bit positions in key corresponding to the direction given by idx
+    ! general layout: idx = [x, y, z]; x, y, z in {-1, 0, +1}
+    !
+    ! used equations (simplified):
+    !   x+(k) = (((k & 0b001) - 1) & 0b001) | (k & 0b110)
+    !   x-(k) = (((k | 0b110) - 1) & 0b001) | (k & 0b110)
+    !
+    ! for y use 0b010, 0b101; for z use 0b100, 0b011
+    !
+    ! PARAMETERS
+    ! ==========
+    ! key   :   64bit-integer, original morton key
+    ! idx   :   integer-array (1d, len 3), direction of neighbour
+    !
+    ! RETURNS
+    ! =======
+    ! 64bit-integer, new morton key
     function morton_neighbour(key, idx) result(nk)
         integer(8), intent(in) :: key
         integer, dimension(3), intent(in) :: idx

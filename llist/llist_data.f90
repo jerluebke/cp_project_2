@@ -41,7 +41,7 @@ contains
     function new_box(key, length, particles) result(b)
         integer(16), intent(in) :: key
         integer(4), intent(in) :: length
-        type(list_t), pointer, intent(in), optional :: particles
+        type(list_t), pointer, optional :: particles
         type(box_t) :: b
         b%key = key
         b%length = length
