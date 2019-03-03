@@ -24,7 +24,7 @@ int main()
 
     ctof_array(a);
 
-    printf("in c: a = \n");
+    printf("in c: a*a = \n");
     print_arr_2d(a, N, N);
 
     free(a);

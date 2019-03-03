@@ -1,4 +1,12 @@
-#include "config.hpp"
+
+
+
+
+
+
+
+
+
 
 ! MODULE: boris_module
 !
@@ -33,7 +41,7 @@ contains
     ! q     :   real, charge of particle
     ! m     :   real, mass of particle
     ! dt    :   real, time step
-    ! bfield:   real array, dimension(N, N, N, 3), array giving the magnetic
+    ! bfield:   real array, dimension(64, 64, 64, 3), array giving the magnetic
     !            field
     !
     ! Returns
@@ -48,7 +56,7 @@ contains
         ! arguments
         real(c_double), dimension(d), intent(inout) :: r, v
         real(c_double), intent(in), value :: q, m, dt
-        real(c_double), dimension(N,N,N,d), intent(in) :: bfield_arr
+        real(c_double), dimension(64,64,64,d), intent(in) :: bfield_arr
         ! helper variables
         real(c_double) :: dtqm, a_sq
         real(c_double), dimension(d) :: E, B, p, v_prime
@@ -224,9 +232,6 @@ contains
 end module boris_module
 
 
-! compile with
-!   C:\> gcc -I../include -E -P -cpp boris.f90 -o boris_pp.f90
-!   C:\> gfortran boris_pp.f90 -o boris_test.exe
 program test
     use boris_module
     implicit none
@@ -236,10 +241,10 @@ program test
     real(8) :: dt = 0.1d0
     real(8),dimension(3) :: r = [1.0d0, 1.0d0, 2.0d0], &
                             v = [0.0d0, 1.0d0, 0.0d0]
-    real(8),dimension(N,N,N,3) :: b
+    real(8),dimension(64,64,64,3) :: b
 
-    do i=1,N
-        do j=1,N
+    do i=1,64
+        do j=1,64
             do k=1,3
                 idx = transfer([i, j, 1], 0.0d0)
                 b(i, j, k, :) = b_field_const_z(idx, 0d0)

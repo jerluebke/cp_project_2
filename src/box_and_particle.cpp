@@ -12,11 +12,7 @@ extern void boris_step_fortran( double r[],
 extern void bfield_func( double *r, double *b );
 
 
-Box::Box()
-{
-    m_key = EMPTY;
-    m_bfield = nullptr;
-}
+Box::Box() : m_key( EMPTY ), m_bfield( nullptr ) {}
 
 
 Box::Box( uint64_t key, int coords[DIM], bool alloc )
@@ -51,7 +47,7 @@ void Box::compute_bfield()
     for ( int i = 0; i < N; ++i )
         for ( int j = 0; j < N; ++j )
             for ( int k = 0; k < N; ++k ) {
-                r[0] = i, r[1] = j, r[2] = k;
+                r[0] = k, r[1] = j, r[2] = i;
                 bfield_func((double *)r, b);
                 for ( int l = 0; l < DIM; ++l )
                     ARRAY_ELEMENT_4D(m_bfield, l, r) = b[l];

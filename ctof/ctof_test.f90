@@ -1,5 +1,8 @@
 #include "config.h"
 
+module ctof
+public
+contains
 subroutine ctof_array(a) bind(c)
     use iso_c_binding
     implicit none
@@ -11,3 +14,4 @@ subroutine ctof_array(a) bind(c)
     print *, "in fortran: a*a = "
     print fmtstr, a
 end subroutine ctof_array
+end module ctof
