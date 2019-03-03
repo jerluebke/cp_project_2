@@ -4,15 +4,23 @@
 #include "morton.h"
 
 
-Propagator::Propagator( double *init )
+Propagator::Propagator( double *init,
+                        int particle_numbers,
+                        int init_box_coords[DIM],
+                        double dt )
+    : m_particle_numbers( particle_numbers ), m_dt( dt )
 {
+    m_boxes.emplace_back( EMPTY, init_box_coords, true );
+    m_temp.emplace_back();
 
-}
+    auto p_list = m_boxes.back().m_particles;
+    double *end = init + particle_numbers;
+    while ( init != end ) {
+        p_list.emplace_back( init );
+        init += (2 * DIM + 2);
+    }
 
-
-Propagator::~Propagator()
-{
-
+    m_particle_coords.reserve( particle_numbers * (2 * DIM + 2) );
 }
 
 
@@ -49,51 +57,51 @@ void Propagator::advance()
                 // compute morton key of new box
                 uint64_t new_key = morton_neighbour( box.m_key, idx );
                 auto temp_it = m_temp.begin();
-                auto temp_end = m_temp.end();
 
                 // compute coordinates of new box
+                // remove particle if new box is out of bounds
                 for ( int j = 0; j < DIM; ++j ) {
                     idx[j] += box.m_coords[j];
-                    if ( idx[j] < 0 || idx[j] > M ) {
-                        p_it--;
+                    if ( idx[j] < 0 || idx[j] >= M ) {
+                        p_it = box.m_particles.erase( p_it );
+                        --m_particle_numbers;
+                        goto next;
                     }
-                    // TODO
-                    // switch ( idx[j] ) {
-                    //     case 0 ... M: continue;
-                    //     default:
-                    //        p_it--; 
-                    // }
                 }
 
                 // find temp box with new_key
-                temp_it = std::find_if( temp_it, temp_end,
+                temp_it = std::find_if( temp_it, (m_temp.end())--,
                         [new_key](Box& val){ return val.m_key == new_key; } );
 
                 // if none was found, find empty temp box
                 if ( temp_it->m_key != new_key ) {
-                    temp_it = std::find_if( m_temp.begin(), temp_end,
+                    temp_it = std::find_if( m_temp.begin(), (m_temp.end())--,
                             [](Box& val){ return val.m_key == EMPTY; } );
 
                     // if none is empty, create new temp box
                     if ( temp_it->m_key != EMPTY )
-                        temp_it = m_temp.emplace_after( temp_end,
+                        temp_it = m_temp.emplace( m_temp.end(),
                                 new_key, idx, false );
 
                     // empty box was found, set its key to new_key and its
                     // coordinates to newly computed coordinates
                     else {
                         temp_it->m_key = new_key;
-                        temp_it->m_coords = idx;
+                        for ( int k = 0; k < DIM; ++k )
+                            temp_it->m_coords[k] = idx[k];
                     }
                 }
 
                 // move current particle (pointed to by p_it) from current box
                 // to temp box
-                temp_it->m_particles.splice_after(
-                        temp_it->m_particles.before_begin(),
+                temp_it->m_particles.splice(
+                        temp_it->m_particles.end(),
                         box.m_particles,
-                        p_it);
+                        p_it );
             }
+
+next:
+            continue;
 
         }   // end particle loop
     }   // end box loop
@@ -105,18 +113,21 @@ void Propagator::reinsert()
     // iterate over temp boxes, i.e. displaced particles
     for ( auto& temp_box : m_temp ) {
 
+        if ( temp_box.m_key == EMPTY )
+            continue;
+
         // find box with same key as current temp box
-        auto box_it = std::find( m_boxes.begin(), m_boxes.end(), temp_box );
+        auto box_it = std::find( m_boxes.begin(), (m_boxes.end())--, temp_box );
 
         // if none was found, create new box
         if ( box_it->m_key != temp_box.m_key )
-            box_it = m_boxes.emplace_after( m_boxes.end(),
+            box_it = m_boxes.emplace( m_boxes.end(),
                     temp_box.m_key, temp_box.m_coords, true );
 
         // move all particles from temp box to corresponding box
-        box_it->m_particles.splice_after(
-                box_it->m_particles.before_begin(),
-                temp_box.m_particles);
+        box_it->m_particles.splice(
+                box_it->m_particles.end(),
+                temp_box.m_particles );
 
         // mark temp box as empty
         temp_box.m_key = EMPTY;

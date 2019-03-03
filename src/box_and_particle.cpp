@@ -1,4 +1,6 @@
 #include "box_and_particle.hpp"
+#include "morton.h"
+
 
 extern void boris_step_fortran( double r[],
                                 double v[],
@@ -6,17 +8,29 @@ extern void boris_step_fortran( double r[],
                                 double m,
                                 double dt,
                                 double bfield[] );
-extern double bfield_func(double *r);
+
+extern void bfield_func( double *r, double *b );
+
+
+Box::Box()
+{
+    m_key = EMPTY;
+    m_bfield = nullptr;
+}
 
 
 Box::Box( uint64_t key, int coords[DIM], bool alloc )
-    : m_key( key )
 {
+    if ( key == EMPTY )
+        m_key = morton_encode( coords );
+    else
+        m_key = key;
+
     for ( int i = 0; i < DIM; ++i )
         m_coords[i] = coords[i];
 
     if ( alloc )
-        m_bfield = new double[N*N*N];
+        m_bfield = new double[N*N*N*DIM];
     else
         m_bfield = nullptr;
 }
@@ -32,12 +46,15 @@ Box::~Box()
 void Box::compute_bfield()
 {
     int r[3] = { 0, 0, 0 };
+    double b[3];
 
     for ( int i = 0; i < N; ++i )
         for ( int j = 0; j < N; ++j )
             for ( int k = 0; k < N; ++k ) {
                 r[0] = i, r[1] = j, r[2] = k;
-                ARRAY_ELEMENT_3D(m_bfield, r) = bfield_func((double *)r);
+                bfield_func((double *)r, b);
+                for ( int l = 0; l < DIM; ++l )
+                    ARRAY_ELEMENT_4D(m_bfield, l, r) = b[l];
             }
 }
 

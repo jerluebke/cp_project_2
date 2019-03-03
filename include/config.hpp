@@ -2,14 +2,11 @@
 
 #include <cstdint>
 
-#include <forward_list>
-#include <vector>
 
-
-#define _ARRAY_ELEMENT_3D(a, x, y, z, nx, ny) \
-    (a)[(x) + (nx) * (y) + (nx) * (ny) * (z)]
-#define ARRAY_ELEMENT_3D(a, t) \
-    _ARRAY_ELEMENT_3D((a), (t)[0], (t)[1], (t)[2], N, N)
+#define _ARRAY_ELEMENT_4D(a, w, x, y, z, nw, nx, ny) \
+    (a)[(w) + (nw) * (x) + (nw) * (nx) * (y) + (nw) * (nx) * (ny) * (z)]
+#define ARRAY_ELEMENT_4D(a, c, r) \
+    _ARRAY_ELEMENT_4D((a), (c), (r)[0], (r)[1], (r)[2], DIM, N, N)
 
 
 const int DIM   = 3;

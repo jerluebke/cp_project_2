@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include "config.hpp"
 
 
@@ -15,13 +16,14 @@ struct Particle
 
 struct Box
 {
+    Box();
     Box( uint64_t key, int coords[DIM], bool alloc );
     ~Box();
 
     uint64_t m_key;
     int m_coords[DIM];
     double *m_bfield;
-    std::forward_list<Particle> m_particles;
+    std::list<Particle> m_particles;
 
     friend bool operator==( const Box& l, const Box& r ) {
         return l.m_key == r.m_key;
