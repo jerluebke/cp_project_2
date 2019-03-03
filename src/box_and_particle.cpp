@@ -1,7 +1,11 @@
 #include "box_and_particle.hpp"
 
-extern void boris_step_fortran(
-        double r[], double v[], double q, double m, double dt, double bfield[] );
+extern void boris_step_fortran( double r[],
+                                double v[],
+                                double q,
+                                double m,
+                                double dt,
+                                double bfield[] );
 extern double bfield_func(double *r);
 
 

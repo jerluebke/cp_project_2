@@ -10,11 +10,12 @@ public:
     ~Propagator();
 
     void timestep();
-    std::vector<int> get_part_coords();
-    std::vector<int> get_box_coords();
+    std::vector<int>& get_part_coords();
+    std::vector<int>& get_box_coords();
 
 private:
     double m_dt, m_tmax;
+    size_t m_particle_numbers;
     std::forward_list<Box> m_boxes;
     std::forward_list<Box> m_temp;
     std::vector<int> m_particle_coords;
