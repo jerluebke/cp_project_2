@@ -4,4 +4,6 @@
 *.dll
 *.exe
 __pycache__
+obj
+bin
 tags

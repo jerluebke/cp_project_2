@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include "propagator.hpp"
 #include "morton.h"
 
@@ -13,14 +14,14 @@ Propagator::Propagator( double *init,
     m_boxes.emplace_back( EMPTY, init_box_coords, true );
     m_temp.emplace_back();
 
-    auto p_list = m_boxes.back().m_particles;
-    double *end = init + particle_numbers;
+    auto& p_list = m_boxes.back().m_particles;
+    double *end = init + (2 * DIM + 2) * particle_numbers;
     while ( init != end ) {
         p_list.emplace_back( init );
         init += (2 * DIM + 2);
     }
 
-    m_particle_coords.reserve( particle_numbers * (2 * DIM + 2) );
+    m_particle_coords.resize( particle_numbers * DIM );
 }
 
 
@@ -31,6 +32,8 @@ void Propagator::advance()
     // iterate over all boxes
     for ( auto& box : m_boxes ) {
 
+        // TODO: compute b-field each time step anew or compute only once
+        // (frozen flux) ?
         box.compute_bfield();
 
         // iterate over all particles in current box
@@ -93,11 +96,21 @@ void Propagator::advance()
                 }
 
                 // move current particle (pointed to by p_it) from current box
-                // to temp box
+                // to temp box.
+                //
+                // save temporary iterator to box.m_particles (otherwise
+                // p_it points to different list which might be garbage...).
+                //
+                // NOTICE: the sequence `--p_prev`, `++p_prev` is necessary
+                // for the program to work correctly and I have no idea
+                // why...
+                auto p_prev = p_it;
+                --p_prev;
                 temp_it->m_particles.splice(
                         temp_it->m_particles.end(),
                         box.m_particles,
                         p_it );
+                p_it = ++p_prev;
             }
 
 next:
@@ -134,11 +147,11 @@ void Propagator::reinsert()
     }
 
     // removing empty boxes
-    m_boxes.remove_if( [](Box& val){ return val.m_particles.empty(); } );
+    m_boxes.remove_if( [](Box& box){ return box.m_particles.empty(); } );
 
     // sort list of boxes according to their morton keys
     // TODO: necessary?
-    m_boxes.sort();
+    // m_boxes.sort();
 }
 
 
@@ -148,7 +161,7 @@ void Propagator::get_coords()
     m_box_coords.clear();
 
     auto part_it = m_particle_coords.begin();
-    auto part_end = part_it + m_particle_numbers;
+    auto part_end = part_it + DIM * m_particle_numbers;
 
     for ( auto& box : m_boxes ) {
         // write coordinates of each box into corresp vector

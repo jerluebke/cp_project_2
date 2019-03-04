@@ -2,14 +2,16 @@
 #include "morton.h"
 
 
-extern void boris_step_fortran( double r[],
-                                double v[],
-                                double q,
-                                double m,
-                                double dt,
-                                double bfield[] );
+extern "C" {
+void boris_step_fortran( double r[],
+                         double v[],
+                         double q,
+                         double m,
+                         double dt,
+                         double bfield[] );
+}
 
-extern void bfield_func( double *r, double *b );
+extern void temp_bfield_func( double *b );
 
 
 Box::Box() : m_key( EMPTY ), m_bfield( nullptr ) {}
@@ -26,7 +28,7 @@ Box::Box( uint64_t key, int coords[DIM], bool alloc )
         m_coords[i] = coords[i];
 
     if ( alloc )
-        m_bfield = new double[N*N*N*DIM];
+        m_bfield = new double[DIM*N*N*N];
     else
         m_bfield = nullptr;
 }
@@ -41,17 +43,7 @@ Box::~Box()
 
 void Box::compute_bfield()
 {
-    int r[3] = { 0, 0, 0 };
-    double b[3];
-
-    for ( int i = 0; i < N; ++i )
-        for ( int j = 0; j < N; ++j )
-            for ( int k = 0; k < N; ++k ) {
-                r[0] = k, r[1] = j, r[2] = i;
-                bfield_func((double *)r, b);
-                for ( int l = 0; l < DIM; ++l )
-                    ARRAY_ELEMENT_4D(m_bfield, l, r) = b[l];
-            }
+    temp_bfield_func( m_bfield );
 }
 
 

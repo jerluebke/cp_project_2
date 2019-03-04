@@ -14,7 +14,7 @@ module boris_module
 
     private
 
-    public :: boris_step, b_field_const_z
+    public :: boris_step_fortran, b_field_const_z
 
 contains
 
@@ -40,7 +40,7 @@ contains
     ! =======
     ! res   :   real array, dimension(3), new location after time step
     !
-    subroutine boris_step(r, v, q, m, dt, bfield_arr) bind(c, name="boris_step_fortran")
+    subroutine boris_step_fortran(r, v, q, m, dt, bfield_arr) bind(c)
         use iso_c_binding, only: c_double, c_int
         implicit none
         ! dimension
@@ -48,11 +48,14 @@ contains
         ! arguments
         real(c_double), dimension(d), intent(inout) :: r, v
         real(c_double), intent(in), value :: q, m, dt
-        real(c_double), dimension(N,N,N,d), intent(in) :: bfield_arr
+        real(c_double), dimension(d,N,N,N), intent(in) :: bfield_arr
         ! helper variables
         real(c_double) :: dtqm, a_sq
         real(c_double), dimension(d) :: E, B, p, v_prime
         integer(c_int), dimension(d) :: idx
+
+        ! print *
+        ! print *, "input: r = ", r
 
         dtqm = q / m * dt
 
@@ -63,9 +66,11 @@ contains
         idx = int(r)
 
         ! compute E- and B-field at new (half time-step) location
-        E = Efield(r)
+        E = Efield(r, 0.0d0)
         ! B = Bfield(r, 0.0d0)
-        B = bfield_arr(idx(1), idx(2), idx(3), :)
+        B = bfield_arr(:, idx(1), idx(2), idx(3))
+
+        ! print *, "bfield = ", B
 
         ! helper vector p = q*B*dt/(2*m)
         p = 0.5d0 * dtqm * B
@@ -89,7 +94,10 @@ contains
 
         ! new location after full time-step
         r = r + 0.5d0 * dt * v
-    end subroutine boris_step
+
+        ! print *, "output: r = ", r
+        ! print *
+    end subroutine boris_step_fortran
 
 
     !===================!
@@ -129,9 +137,10 @@ contains
     ! =======
     ! E(r, t)   :   real array, dimension(3), E-field at r and t
     !
-    function Efield(r) result(e)
+    function Efield(r, t) result(e)
         implicit none
         real(8),dimension(:),intent(inout) :: r
+        real(8),intent(in) :: t
         real(8),dimension(3) :: e
         ! e = [0.0d0, 0.0d0, 0.0d0]
         e = e_field_const_y(r, 0.0d0)
@@ -223,32 +232,3 @@ contains
 
 end module boris_module
 
-
-! compile with
-!   C:\> gcc -I../include -E -P -cpp boris.f90 -o boris_pp.f90
-!   C:\> gfortran boris_pp.f90 -o boris_test.exe
-program test
-    use boris_module
-    implicit none
-
-    integer :: i, j, k
-    real(8),dimension(3) :: idx
-    real(8) :: dt = 0.1d0
-    real(8),dimension(3) :: r = [1.0d0, 1.0d0, 2.0d0], &
-                            v = [0.0d0, 1.0d0, 0.0d0]
-    real(8),dimension(N,N,N,3) :: b
-
-    do i=1,N
-        do j=1,N
-            do k=1,3
-                idx = transfer([i, j, 1], 0.0d0)
-                b(i, j, k, :) = b_field_const_z(idx, 0d0)
-            end do
-        end do
-    end do
-
-    do i=1,100
-        call boris_step(r, v, 1.0d0, 1.0d0, 0.1d0, b)
-        print *, r
-    end do
-end program test
