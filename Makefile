@@ -1,7 +1,8 @@
 CC 		= g++
 FC 		= gfortran
 PPFLAGS = -E -P -cpp
-CFLAGS 	= -Wall -Wextra -g
+# CFLAGS 	= -Wall -Wextra -g
+CFLAGS 	= -Wall -Wextra -O3 -fPIC
 XFLAGS  = -xc++ -std=c++17 -Iinclude/
 NOWARN 	= -Wno-unused-function # -Wno-unused-dummy-argument
 PPCMD 	= $(CC) -Iinclude/ $(PPFLAGS)

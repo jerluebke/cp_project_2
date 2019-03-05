@@ -11,6 +11,7 @@ cdef class PyPropagator:
     cdef Propagator *this_ptr
     cdef np.ndarray part_coords
     cdef np.ndarray box_coords
+    cdef int particle_numbers
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -19,7 +20,7 @@ cdef class PyPropagator:
                   np.ndarray[int, ndim=1, mode='c'] init_box not None,
                   double dt = 0.1):
         a, b = init.shape[0], init.shape[1]
-        if not b % 8:
+        if b % 8 != 0:
             raise ValueError(
                 "init needs shape (a, 8), but (a, %d) was received!" % b)
         self.particle_numbers = a
