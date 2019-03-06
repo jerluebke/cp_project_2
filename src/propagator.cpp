@@ -2,7 +2,7 @@
 #include <cassert>
 #include <climits>
 #include "propagator.hpp"
-#include "morton.h"
+#include "morton.hpp"
 
 
 Propagator::Propagator( double *init,
@@ -90,6 +90,7 @@ void Propagator::advance()
                     // coordinates to newly computed coordinates
                     else {
                         temp_it->m_key = new_key;
+                        // TODO: use memcpy
                         for ( int k = 0; k < DIM; ++k )
                             temp_it->m_coords[k] = idx[k];
                     }

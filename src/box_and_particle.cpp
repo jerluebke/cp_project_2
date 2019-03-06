@@ -1,5 +1,5 @@
 #include "box_and_particle.hpp"
-#include "morton.h"
+#include "morton.hpp"
 
 
 extern "C" {
@@ -24,6 +24,7 @@ Box::Box( uint64_t key, int coords[DIM], bool alloc )
     else
         m_key = key;
 
+    // TODO: use memcpy
     for ( int i = 0; i < DIM; ++i )
         m_coords[i] = coords[i];
 
@@ -50,6 +51,7 @@ void Box::compute_bfield()
 Particle::Particle( double *init )
     : m_q( init[2*DIM] ), m_m( init[2*DIM+1] )
 {
+    // TODO: use memcpy
     for ( int i = 0; i < DIM; ++i ) {
         m_r[i] = init[i];
         m_v[i] = init[i+DIM];

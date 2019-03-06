@@ -7,8 +7,6 @@ from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 import numpy
 
-# TODO: specify build dir, fix make rule
-
 this_dir = os.path.dirname(os.path.realpath(__file__))
 obj_dir = os.path.join(this_dir, "../obj")
 

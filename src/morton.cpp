@@ -1,4 +1,4 @@
-#include "morton.h"
+#include "morton.hpp"
 
 static const uint64_t B[6] = {
     07777777,
