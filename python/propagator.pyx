@@ -11,7 +11,6 @@ cdef class PyPropagator:
     cdef Propagator *this_ptr
     cdef np.ndarray part_coords
     cdef np.ndarray box_coords
-    cdef int particle_numbers
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -23,7 +22,6 @@ cdef class PyPropagator:
         if b % 8 != 0:
             raise ValueError(
                 "init needs shape (a, 8), but (a, %d) was received!" % b)
-        self.particle_numbers = a
         cdef double[::1] init_mv = init.reshape(a*b)
         cdef int[::1] init_box_mv = init_box
         self.this_ptr = new Propagator(&init_mv[0], a, &init_box_mv[0], dt)
@@ -37,10 +35,10 @@ cdef class PyPropagator:
     @cython.wraparound(False)
     def timestep(self):
         self.this_ptr.timestep()
-        self.part_coords = np.array(self.this_ptr.get_part_coords(), ndim=2)
+        self.part_coords = np.array(self.this_ptr.get_part_coords(), ndmin=2)
         self.part_coords = np.reshape(self.part_coords,
-                                      (self.particle_numbers, 3))
-        self.box_coords = np.array(self.this_ptr.get_box_coords(), ndim=2)
+                                      (self.part_coords.size//3, 3))
+        self.box_coords = np.array(self.this_ptr.get_box_coords(), ndmin=2)
         self.box_coords = np.reshape(self.box_coords,
                                      (self.box_coords.size//3, 3))
         return (self.part_coords, self.box_coords)

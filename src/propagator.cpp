@@ -157,8 +157,8 @@ void Propagator::reinsert()
 
 void Propagator::get_coords()
 {
-    // make sure, coordinate vectors are clear
     m_box_coords.clear();
+    m_particle_coords.resize( DIM * m_particle_numbers );
 
     auto part_it = m_particle_coords.begin();
     auto part_end = part_it + DIM * m_particle_numbers;

@@ -6,6 +6,7 @@ CFLAGS 	= -Wall -Wextra -O3 -fPIC
 XFLAGS  = -xc++ -std=c++17 -Iinclude/
 NOWARN 	= -Wno-unused-function # -Wno-unused-dummy-argument
 PPCMD 	= $(CC) -Iinclude/ $(PPFLAGS)
+PYCMD	= python3 python/setup.py build_ext
 
 SRCDIR 	:= src/
 TESTDIR := test/
@@ -23,16 +24,25 @@ CTESTSRC:= $(TESTDIR)ctest.cpp
 CTESTOBJ:= $(OBJDIR)ctest.o
 CTESTBIN:= $(BINDIR)ctest
 
+PYDIR 	:= python/
+PYBUILD := $(PYDIR)build/
+CYSRC	:= $(PYDIR)propagator.cpp
+PYSO	:= $(PYDIR)propagator.cpython*.so
+
 ALLOBJ := $(FOBJ) $(COBJ) $(CTESTOBJ)
 ALLBIN := $(FTESTBIN) $(CTESTBIN)
 
 
-debug:
-	echo $(CSRC)
-	echo $(COBJ)
+.PHONY: python ctest ftest clean
 
 
-ctest: obj/boris.o $(CTESTOBJ) $(COBJ)
+python: $(OBJDIR)boris.o $(COBJ)
+	$(PYCMD) --build-lib=$(PYDIR) --build-temp=$(PYBUILD)
+	rm -rf $(PYBUILD)
+	rm -f $(CYSRC)
+
+
+ctest: $(OBJDIR)boris.o $(CTESTOBJ) $(COBJ)
 	$(FC) $^ -lstdc++ -o $(CTESTBIN)
 
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
@@ -63,5 +73,6 @@ obj/ftest_pp.f90: test/ftest.f90
 # $(FSRC_PP): $(FSRC)
 #     $(PPCMD) $< -o $@
 
+
 clean:
-	rm -f $(ALLOBJ) $(ALLBIN) $(FSRC_PP)
+	rm -f $(ALLOBJ) $(ALLBIN) $(PYSO) $(FSRC_PP) boris_module.mod
