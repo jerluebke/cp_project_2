@@ -14,6 +14,12 @@ void boris_step_fortran( double r[],
 extern void temp_bfield_func( double *b );
 
 
+
+/*==========================================================================*/
+/*  Constructor/Destructor Box:                                             */
+/*      (conditional) initialization and (de-)allocation of memory          */
+/*==========================================================================*/
+
 Box::Box() : m_key( EMPTY ), m_bfield( nullptr ) {}
 
 
@@ -24,9 +30,7 @@ Box::Box( uint64_t key, int coords[DIM], bool alloc )
     else
         m_key = key;
 
-    // TODO: use memcpy
-    for ( int i = 0; i < DIM; ++i )
-        m_coords[i] = coords[i];
+    std::memcpy( (void *)m_coords, (void *)coords, sizeof m_coords );
 
     if ( alloc )
         m_bfield = new double[DIM*N*N*N];
@@ -42,23 +46,33 @@ Box::~Box()
 }
 
 
+// compute B-field array of Box
+// TODO: implement `real` B-field function
 void Box::compute_bfield()
 {
     temp_bfield_func( m_bfield );
 }
 
 
+/*==========================================================================*/
+
+
+/*==========================*/
+/* Constructor Particle     */
+/*==========================*/
+
 Particle::Particle( double *init )
     : m_q( init[2*DIM] ), m_m( init[2*DIM+1] )
 {
-    // TODO: use memcpy
-    for ( int i = 0; i < DIM; ++i ) {
-        m_r[i] = init[i];
-        m_v[i] = init[i+DIM];
-    }
+    std::memcpy( (void *)m_r, (void *)init, sizeof m_r );
+    std::memcpy( (void *)m_v, (void *)&init[DIM], sizeof m_v );
 }
 
 
+// compute coordinates and velocities of particle after one timestep using the
+// boris-scheme
+//
+// wrapper for fortran-subroutine
 void Particle::boris_step( double *bfield, double dt )
 {
     boris_step_fortran( m_r, m_v, m_q, m_m, dt, bfield );

@@ -54,23 +54,18 @@ contains
         real(c_double), dimension(d) :: E, B, p, v_prime
         integer(c_int), dimension(d) :: idx
 
-        ! print *
-        ! print *, "input: r = ", r
-
         dtqm = q / m * dt
 
         ! compute half time-step with given velocity
         r = r + 0.5d0 * dt * v
 
-        ! cast the r into an integer array to use it as indices for bfield_arr
-        idx = int(r)
+        ! cast r to int and compute r mod N to use as indices for bfield_arr
+        idx = mod(int(r), N) + 1
 
         ! compute E- and B-field at new (half time-step) location
         E = Efield(r, 0.0d0)
         ! B = Bfield(r, 0.0d0)
         B = bfield_arr(:, idx(1), idx(2), idx(3))
-
-        ! print *, "bfield = ", B
 
         ! helper vector p = q*B*dt/(2*m)
         p = 0.5d0 * dtqm * B
@@ -95,8 +90,6 @@ contains
         ! new location after full time-step
         r = r + 0.5d0 * dt * v
 
-        ! print *, "output: r = ", r
-        ! print *
     end subroutine boris_step_fortran
 
 

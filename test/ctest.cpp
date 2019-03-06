@@ -21,7 +21,7 @@ int main()
     double init[16] = {
         // particle 1
         1.0, 1.0, 2.0,
-        0.0, 1.0, 0.0,
+        0.0, 0.0, 2.0,
         1.0, 1.0,
 
         // particle 2
@@ -30,7 +30,7 @@ int main()
         1.0, 1.0
     };
 
-#if 1
+#if 0
     Particle p( &init[0] );
     Box b( EMPTY, coords, true );
     b.compute_bfield();
@@ -44,7 +44,7 @@ int main()
 #endif
 
 #if 1
-    Propagator pg( init, 1, coords, 0.1 );
+    Propagator pg( &init[0], 1, coords, 0.1 );
     std::vector<int> pc, bc;
 
     std::cout << "class Propagator, 100 timesteps:\n";

@@ -14,7 +14,8 @@ N = 16
 
 # set up propagator
 init_particles = np.array([
-    [1., 1., 2., 0., 1., 0., 1., 1.]
+    [1., 1., 2., 0., 1., 0., 1., 1.],
+    [2., 1., 2., 0., 0., 2., 1., 1.]
 ], dtype=np.float64)
 init_box = np.array([0, 0, 0], dtype=np.int32)
 pg = propagator.PyPropagator(init_particles, init_box)
@@ -62,12 +63,12 @@ def update(i):
     particles[2].set_data(p[:,1], p[:,2])
 
     # set box coordinates
-    old = len(boxes)
+    old = len(boxes[0])
     new = len(b)
     for i in range(min(old, new)):
-        boxes[0][i].set_xy(b[i, 0], b[i, 1])
-        boxes[1][i].set_xy(b[i, 0], b[i, 2])
-        boxes[2][i].set_xy(b[i, 1], b[i, 2])
+        boxes[0][i].set_xy((b[i, 0], b[i, 1]))
+        boxes[1][i].set_xy((b[i, 0], b[i, 2]))
+        boxes[2][i].set_xy((b[i, 1], b[i, 2]))
 
     # number of boxes increased: add them
     if old < new:
@@ -90,9 +91,10 @@ def update(i):
     return [*particles, *[c for b in boxes for c in b]]
 
 
-# write animation in movie
+#  write animation in movie
 FFWriter = animation.FFMpegWriter(fps=10)
-animation.FuncAnimation(fig, update, frames=706, interval=100,
+animation.FuncAnimation(fig, update, frames=500, interval=100,
                         blit=True, repeat=False).save(
                             input("enter name: ") + ".mp4",
                             writer=FFWriter, dpi=100)
+

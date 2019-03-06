@@ -5,26 +5,105 @@
 #include "morton.hpp"
 
 
+/* Propagator
+ * ==========
+ *
+ *
+ * Constructor Parameters
+ * ======================
+ * init             :   double array, initial particle data
+ *                      layout:
+ *                          [ x1, y1, z1, vx1, vy1, vz1, q1, m1,
+ *                            ...
+ *                            xn, ..., mn ]
+ *                      length: (2*DIM+2) * particle_numbers
+ *
+ * particle_numbers :   size_t, number of particles
+ *
+ * init_box_coords  :   int array, initial coords of the initial box
+ *                      length: DIM
+ *
+ * dt               :   double, time step
+ *
+ *
+ * Members
+ * =======
+ * m_particle_numbers   :   size_t, number of particles in system
+ *
+ * m_dt                 :   double, time step
+ *
+ * m_boxes              :   list of active Boxes
+ *
+ * m_temp               :   list of boxes to temporarily store displaced
+ *                          particles
+ *
+ * m_particle_coords    :   vector<int> (1 dim) holding the coordinates of the
+ *                          particles in the system (particle-reference-frame)
+ *                          layout:
+ *                              [ x1, y1, z1,
+ *                                x2, y2, z3,
+ *                                ...
+ *                                xn, yn, zn ]
+ *
+ * m_box_coords         :   vector<int> (1 dim) holding the coordinates of
+ *                          the active boxes (box-reference-frame)
+ *                          layout: see `m_particle_coords`
+ *
+ *
+ * public Methods
+ * ==============
+ * timestep     :   perform one timestep, call `advance`, `reinsert` and
+ *                  `get_coords`
+ *
+ * private Methods
+ * ==============
+ * advance      :   advance each particle one timestep
+ * reinsert     :   reinsert displaced particles into active boxes
+ * get_coords   :   write coordinates from lists into vectors
+ *
+ */
 Propagator::Propagator( double *init,
                         int particle_numbers,
                         int init_box_coords[DIM],
                         double dt )
     : m_particle_numbers( particle_numbers ), m_dt( dt )
 {
+    // create initial box (key will be computed from coords)
     m_boxes.emplace_back( EMPTY, init_box_coords, true );
+    // create empty temp box (placeholder, list must not be empty)
     m_temp.emplace_back();
 
+    // get reference to particle-list of first box
     auto& p_list = m_boxes.back().m_particles;
+    // end pointer of `init`
     double *end = init + (2 * DIM + 2) * particle_numbers;
+
+    // create particles from array and place in list
     while ( init != end ) {
         p_list.emplace_back( init );
         init += (2 * DIM + 2);
     }
-
-    m_particle_coords.resize( particle_numbers * DIM );
 }
 
 
+/* advance
+ *
+ *  for each box:
+ *      compute bfield
+ *
+ *      for each particle in box:
+ *          perform boris-step
+ *
+ *          check wether particle went out of box
+ *          if it did, compute new box
+ *              if new box is out of bounds, remove particle
+ *              else place particle in temp box (with new key)
+ *
+ *      end particle-loop
+ *
+ *  end box-loop
+ *
+ */
 void Propagator::advance()
 {
     int idx[3] = { 0, 0, 0 };
@@ -90,21 +169,17 @@ void Propagator::advance()
                     // coordinates to newly computed coordinates
                     else {
                         temp_it->m_key = new_key;
-                        // TODO: use memcpy
-                        for ( int k = 0; k < DIM; ++k )
-                            temp_it->m_coords[k] = idx[k];
+                        std::memcpy(
+                                (void *)temp_it->m_coords,
+                                (void *)idx,
+                                sizeof idx );
                     }
                 }
 
                 // move current particle (pointed to by p_it) from current box
                 // to temp box.
-                //
                 // save temporary iterator to box.m_particles (otherwise
-                // p_it points to different list which might be garbage...).
-                //
-                // NOTICE: the sequence `--p_prev`, `++p_prev` is necessary
-                // for the program to work correctly and I have no idea
-                // why...
+                // p_it points to different list).
                 auto p_prev = p_it;
                 --p_prev;
                 temp_it->m_particles.splice(
@@ -122,6 +197,16 @@ next:
 }
 
 
+/* reinsert
+ *
+ *  for each temp box (i.e. displaced particles)
+ *      find or create active box with corresp. key
+ *      move particles from temp to active box
+ *  end temp-box-loop
+ *
+ *  remove empty active boxes
+ *
+ */
 void Propagator::reinsert()
 {
     // iterate over temp boxes, i.e. displaced particles
@@ -156,6 +241,12 @@ void Propagator::reinsert()
 }
 
 
+/* get_coords
+ *
+ *  iterate over boxes and their particles
+ *      write coordinates of each into corresp. vector
+ *
+ */
 void Propagator::get_coords()
 {
     m_box_coords.clear();
@@ -187,6 +278,14 @@ void Propagator::get_coords()
 }
 
 
+/* timestep - public
+ *
+ * putting the timestep routine together:
+ *  advancing particles (incl. bounds check and displacement)
+ *  reinserting of displaced particles
+ *  writing coordinates from lists into vectors
+ *
+ */
 void Propagator::timestep()
 {
     advance();
