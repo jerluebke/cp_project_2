@@ -136,7 +136,7 @@ contains
         real(8),intent(in) :: t
         real(8),dimension(3) :: e
         ! e = [0.0d0, 0.0d0, 0.0d0]
-        e = e_field_const_y(r, 0.0d0)
+        e = e_field_const_y(r)
     end function Efield
 
 
@@ -157,18 +157,17 @@ contains
         real(8),dimension(:),intent(inout) :: r
         real(8),intent(in) :: t
         real(8),dimension(3) :: b
-        ! b = zylindrical_b_field(r, t)
-        ! b = b_field_magnetic_mirror(r, t)
-        b = b_field_const_z(r, t)
+        ! b = zylindrical_b_field(r)
+        ! b = b_field_magnetic_mirror(r)
+        b = b_field_const_z(r)
     end function Bfield
 
 
     ! zylindrical b_field
     ! B = 1/d * e_rho, d = sqrt(x**2 + y**2)
-    function b_field_zylindrical(r, t) result(b)
+    function b_field_zylindrical(r) result(b)
         implicit none
         real(8),dimension(:),intent(inout) :: r
-        real(8),intent(in) :: t
         real(8),dimension(3) :: b
         real(8) :: d, b0
         d = sqrt(r(1)**2 + r(2)**2)
@@ -186,11 +185,10 @@ contains
     !   B_z = 2 - cos(pi*z/10)
     !   B_rho = -rho / 2 * (2 * cos(pi*z/10) * sin(pi*z/10) * pi / 10)
     !
-    function b_field_magnetic_mirror(r, t) result(b)
+    function b_field_magnetic_mirror(r) result(b)
         implicit none
         real(8), parameter :: PI = 4 * atan(1.0d0)
         real(8), dimension(3), intent(in) :: r
-        real(8), intent(in) :: t
         real(8), dimension(3) :: b
         real(8) :: rho, zarg, bz, brho
         zarg = PI / 10.0d0 * r(3)
@@ -202,10 +200,9 @@ contains
 
 
     ! constant b-field in z direction
-    function b_field_const_z(r, t) result(b)
+    function b_field_const_z(r) result(b)
         implicit none
         real(8), dimension(3), intent(in) :: r
-        real(8), intent(in) :: t
         real(8), dimension(3) :: b
         real(8) :: b0z = 0.1d0
         b = [ 0.0d0, 0.0d0, b0z ]
@@ -213,10 +210,9 @@ contains
 
 
     ! constant e-field in y direction
-    function e_field_const_y(r, t) result(e)
+    function e_field_const_y(r) result(e)
         implicit none
         real(8), dimension(3), intent(in) :: r
-        real(8), intent(in) :: t
         real(8), dimension(3) :: e
         real(8) :: e0y = 1.0d0
         e = [ 0.0d0, e0y, 0.0d0 ]

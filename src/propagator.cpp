@@ -124,11 +124,10 @@ void Propagator::advance()
 
             // bounds check: iterate over all dimensions
             for ( int i = 0; i < DIM; ++i ) {
-                switch ( (long) p_it->m_r[i] ) {
-                    case LONG_MIN ... -1:   idx[i] = -1;    break;
-                    case N ... LONG_MAX:    idx[i] = 1;     break;
-                    default: idx[i] = 0;
-                }
+                // check in which direction the current component went out of
+                // bounds
+                idx[i] = ( p_it->m_r[i] < 0 ) ? -1 : \
+                         ( p_it->m_r[i] >= N ) ? 1 : 0;
                 // compute coordinates in new box
                 p_it->m_r[i] -= idx[i] * N;
             }
@@ -253,7 +252,9 @@ void Propagator::get_coords()
     m_particle_coords.resize( DIM * m_particle_numbers );
 
     auto part_it = m_particle_coords.begin();
+#ifndef NDEBUG
     auto part_end = part_it + DIM * m_particle_numbers;
+#endif
 
     for ( auto& box : m_boxes ) {
         // write coordinates of each box into corresp vector
@@ -271,7 +272,7 @@ void Propagator::get_coords()
                 // should not change (perhaps decrease, if some particles went
                 // out of bounds...)
                 assert( part_it != part_end );
-                *part_it++ = N * box.m_coords[j] + (int) part.m_r[j];
+                *part_it++ = N * box.m_coords[j] + static_cast<int>( part.m_r[j] );
             }
         }
     }
