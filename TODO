@@ -1,0 +1,3 @@
+./src/box_and_particle.cpp:50:  // TODO: implement `real` B-field function
+./src/propagator.cpp:114:       // TODO: compute b-field each time step anew or compute only once
+./src/propagator.cpp:238:       // TODO: necessary?
