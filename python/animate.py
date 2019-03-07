@@ -8,41 +8,53 @@ import matplotlib.animation as animation
 import propagator
 
 
-# number of particle grid points per box
-N = 16
+plt.rcParams["text.usetex"] = True
+
+
+# particle grid in box
+N = 64
+# box grid
+M = 8
+
+PARTICLE_NUMBERS = 20
 
 
 # set up propagator
-init_particles = np.array([
-    [1., 1., 2., 0., 1., 0., 1., 1.],
-    [2., 1., 2., 0., 0., 2., 1., 1.]
-], dtype=np.float64)
-init_box = np.array([0, 0, 0], dtype=np.int32)
+#  init_particles = np.array([
+#      [1., 1., 2., 0., 1., 0., 1., 1.],
+#      [2., 1., 2., 0., 0., 2., 1., 1.]
+#  ], dtype=np.float64)
+#  init_box = np.array([0, 0, 0], dtype=np.int32)
+init_particles = np.empty((PARTICLE_NUMBERS, 8), dtype=np.float64)
+init_particles[:,6:] = 1
+init_particles[:,:3] = np.random.normal(8, 3, (PARTICLE_NUMBERS, 3))
+init_particles[:,3:6] = np.random.normal(6, 3, (PARTICLE_NUMBERS, 3))
+init_box = np.array([1, 1, 1], dtype=np.int32)
 pg = propagator.PyPropagator(init_particles, init_box)
 
 
 # plotting constants
-rectkwds = dict(width=16, height=16, alpha=0.5, color="red", zorder=1)
-xlim = (0, 512)
-ylim = (0, 512)
-zlim = (0, 512)
+rectkwds = dict(width=N, height=N, alpha=0.5, color="red", zorder=1)
+xlim = (0, N*M)
+ylim = (0, N*M)
+zlim = (0, N*M)
 
 # set up plotting
 fig = plt.figure()
-axy = fig.add_subplot(221, title="x-y", xlabel="x", ylabel="y",
+axy = fig.add_subplot(221, title="$x-y$", xlabel="$x$", ylabel="$y$",
                       xlim=xlim, ylim=ylim)
-axz = fig.add_subplot(222, title="x-z", xlabel="x", ylabel="z",
+axz = fig.add_subplot(222, title="$x-z$", xlabel="$x$", ylabel="$z$",
                       xlim=xlim, ylim=zlim)
-ayz = fig.add_subplot(223, title="y-z", xlabel="y", ylabel="z",
+ayz = fig.add_subplot(223, title="$y-z$", xlabel="$y$", ylabel="$z$",
                       xlim=ylim, ylim=zlim)
 fig.tight_layout()
 
 
 # plot initial data
 particles = [
-    axy.plot([init_particles[:,0]], [init_particles[:,1]], 'b.')[0],
-    axz.plot([init_particles[:,0]], [init_particles[:,2]], 'b.')[0],
-    ayz.plot([init_particles[:,1]], [init_particles[:,2]], 'b.')[0]
+    axy.plot([], [], 'b.')[0],
+    axz.plot([], [], 'b.')[0],
+    ayz.plot([], [], 'b.')[0]
 ]
 boxes = [
     [axy.add_patch(plt.Rectangle((init_box[0], init_box[1]), **rectkwds))],
@@ -51,11 +63,17 @@ boxes = [
 ]
 
 
-def update(i):
+def update(f):
     # compute new coordinates of particles and boxes
     p, b = pg.timestep()
     # box coordinates in particle reference frame
     b *= N
+
+    # find duplicate boxes
+    box_list = [tuple(elem) for elem in b]
+    dboxes = set([elem for elem in box_list if box_list.count(elem) > 1])
+    if dboxes:
+        print(f, dboxes)
 
     # set particle coordinates
     particles[0].set_data(p[:,0], p[:,1])
@@ -82,7 +100,7 @@ def update(i):
 
     # number of boxes decreased: remove them
     elif new < old:
-        for i in range(new, old):
+        for i in range(new, old-1):
             for j in range(3):
                 boxes[j][i].remove()
                 del boxes[j][i]
@@ -92,9 +110,9 @@ def update(i):
 
 
 #  write animation in movie
-FFWriter = animation.FFMpegWriter(fps=10)
-animation.FuncAnimation(fig, update, frames=500, interval=100,
+FFWriter = animation.FFMpegWriter(fps=30)
+animation.FuncAnimation(fig, update, frames=300, interval=100,
                         blit=True, repeat=False).save(
                             input("enter name: ") + ".mp4",
-                            writer=FFWriter, dpi=100)
+                            writer=FFWriter, dpi=300)
 
