@@ -16,12 +16,14 @@ N = 64
 # box grid
 M = 8
 
+labelfactor = 2
+
 PARTICLE_NUMBERS = 20
 
 
 # set up propagator
 #  init_particles = np.array([
-#      [1., 1., 2., 0., 1., 0., 1., 1.],
+#      [1., 1., 2., 0., 1., 1., 1., 1.],
 #      [2., 1., 2., 0., 0., 2., 1., 1.]
 #  ], dtype=np.float64)
 #  init_box = np.array([0, 0, 0], dtype=np.int32)
@@ -41,12 +43,18 @@ zlim = (0, N*M)
 
 # set up plotting
 fig = plt.figure()
-axy = fig.add_subplot(221, title="$x-y$", xlabel="$x$", ylabel="$y$",
-                      xlim=xlim, ylim=ylim)
-axz = fig.add_subplot(222, title="$x-z$", xlabel="$x$", ylabel="$z$",
-                      xlim=xlim, ylim=zlim)
-ayz = fig.add_subplot(223, title="$y-z$", xlabel="$y$", ylabel="$z$",
-                      xlim=ylim, ylim=zlim)
+axy = fig.add_subplot(221, title="$x-y$", xlabel="$x$", ylabel="$y$")
+axz = fig.add_subplot(222, title="$x-z$", xlabel="$x$", ylabel="$z$")
+ayz = fig.add_subplot(223, title="$y-z$", xlabel="$y$", ylabel="$z$")
+
+for a in (axy, axz, ayz):
+    tickarr = np.arange(0, N*M+1, N)
+    labellist = [i if i % (N*labelfactor) == 0 else '' for i in tickarr]
+    a.set(xlim=xlim, ylim=ylim,
+          xticks=tickarr, yticks=tickarr,
+          xticklabels=labellist, yticklabels=labellist)
+    a.grid(True)
+
 fig.tight_layout()
 
 
