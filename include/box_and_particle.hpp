@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>  // memcpy
 #include <list>
 #include "config.hpp"
 

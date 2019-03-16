@@ -11,7 +11,10 @@ void boris_step_fortran( double r[],
                          double bfield[] );
 }
 
-extern void temp_bfield_func( double *b );
+extern void temp_bfield_const_z( double *b );
+extern void temp_bfield_random( double *b );
+
+#define BFIELD_FUNC temp_bfield_random
 
 
 
@@ -30,12 +33,14 @@ Box::Box( uint64_t key, int coords[DIM], bool alloc )
     else
         m_key = key;
 
-    std::memcpy( (void *)m_coords, (void *)coords, sizeof m_coords );
+    std::copy( coords, coords+DIM, m_coords );
 
-    if ( alloc )
+    if ( alloc ) {
         m_bfield = new double[DIM*N*N*N];
-    else
+        BFIELD_FUNC( m_bfield );
+    } else {
         m_bfield = nullptr;
+    }
 }
 
 
@@ -50,7 +55,7 @@ Box::~Box()
 // TODO: implement `real` B-field function
 void Box::compute_bfield()
 {
-    temp_bfield_func( m_bfield );
+    BFIELD_FUNC( m_bfield );
 }
 
 
@@ -64,8 +69,8 @@ void Box::compute_bfield()
 Particle::Particle( double *init )
     : m_q( init[2*DIM] ), m_m( init[2*DIM+1] )
 {
-    std::memcpy( (void *)m_r, (void *)init, sizeof m_r );
-    std::memcpy( (void *)m_v, (void *)&init[DIM], sizeof m_v );
+    std::copy( init, init+DIM, m_r );
+    std::copy( init+DIM, init+(2*DIM), m_v);
 }
 
 

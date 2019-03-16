@@ -16,10 +16,22 @@ N = 64
 # box grid
 M = 8
 
-labelfactor = 2
+# label frequency on plot axes
+LABELFACTOR = 4
 
-PARTICLE_NUMBERS = 20
+# movie settings
+FRAMES  = 500
+FPS     = 30
+DPI     = 300
 
+
+#============================================================================#
+
+#####################
+# PARTICLE CONFIG   #
+#####################
+
+PARTICLE_NUMBERS = 50
 
 # set up propagator
 #  init_particles = np.array([
@@ -27,12 +39,24 @@ PARTICLE_NUMBERS = 20
 #      [2., 1., 2., 0., 0., 2., 1., 1.]
 #  ], dtype=np.float64)
 #  init_box = np.array([0, 0, 0], dtype=np.int32)
+
 init_particles = np.empty((PARTICLE_NUMBERS, 8), dtype=np.float64)
+
+# init_particles = [ x, y, z, vx, vy, vz, m, q ]
+
+# m, q
 init_particles[:,6:] = 1
-init_particles[:,:3] = np.random.normal(8, 3, (PARTICLE_NUMBERS, 3))
-init_particles[:,3:6] = np.random.normal(6, 3, (PARTICLE_NUMBERS, 3))
-init_box = np.array([1, 1, 1], dtype=np.int32)
+# position
+init_particles[:,:3] = np.random.normal(32, 2, (PARTICLE_NUMBERS, 3))
+# x velocity
+init_particles[:,3] = np.random.normal(10, 4, (PARTICLE_NUMBERS,))
+# y, z velocity
+init_particles[:,4:6] = np.random.normal(0, 8, (PARTICLE_NUMBERS, 2))
+
+init_box = np.array([0, 4, 4], dtype=np.int32)
 pg = propagator.PyPropagator(init_particles, init_box)
+
+#============================================================================#
 
 
 # plotting constants
@@ -49,7 +73,7 @@ ayz = fig.add_subplot(223, title="$y-z$", xlabel="$y$", ylabel="$z$")
 
 for a in (axy, axz, ayz):
     tickarr = np.arange(0, N*M+1, N)
-    labellist = [i if i % (N*labelfactor) == 0 else '' for i in tickarr]
+    labellist = [i if i % (N*LABELFACTOR) == 0 else '' for i in tickarr]
     a.set(xlim=xlim, ylim=ylim,
           xticks=tickarr, yticks=tickarr,
           xticklabels=labellist, yticklabels=labellist)
@@ -77,11 +101,14 @@ def update(f):
     # box coordinates in particle reference frame
     b *= N
 
+    if (f+1)%100 == 0:
+        print('frame: %d' % (f+1))
+
     # find duplicate boxes
-    box_list = [tuple(elem) for elem in b]
-    dboxes = set([elem for elem in box_list if box_list.count(elem) > 1])
-    if dboxes:
-        print(f, dboxes)
+    #  box_list = [tuple(elem) for elem in b]
+    #  dboxes = set([elem for elem in box_list if box_list.count(elem) > 1])
+    #  if dboxes:
+    #      print(f, dboxes)
 
     # set particle coordinates
     particles[0].set_data(p[:,0], p[:,1])
@@ -118,9 +145,9 @@ def update(f):
 
 
 #  write animation in movie
-FFWriter = animation.FFMpegWriter(fps=30)
-animation.FuncAnimation(fig, update, frames=300, interval=100,
+FFWriter = animation.FFMpegWriter(fps=FPS)
+animation.FuncAnimation(fig, update, frames=FRAMES, interval=100,
                         blit=True, repeat=False).save(
                             input("enter name: ") + ".mp4",
-                            writer=FFWriter, dpi=300)
+                            writer=FFWriter, dpi=DPI)
 

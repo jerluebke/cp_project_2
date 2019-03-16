@@ -109,11 +109,11 @@ void Propagator::advance()
     int idx[3] = { 0, 0, 0 };
 
     // iterate over all boxes
-    for ( auto& box : m_boxes ) {
+    for ( Box& box : m_boxes ) {
 
         // TODO: compute b-field each time step anew or compute only once
         // (frozen flux) ?
-        box.compute_bfield();
+        // box.compute_bfield();
 
         // iterate over all particles in current box
         for ( auto p_it = box.m_particles.begin();
@@ -168,10 +168,7 @@ void Propagator::advance()
                     // coordinates to newly computed coordinates
                     else {
                         temp_it->m_key = new_key;
-                        std::memcpy(
-                                (void *)temp_it->m_coords,
-                                (void *)idx,
-                                sizeof idx );
+                        std::copy( idx, idx+DIM, temp_it->m_coords );
                     }
                 }
 
@@ -209,7 +206,7 @@ next:
 void Propagator::reinsert()
 {
     // iterate over temp boxes, i.e. displaced particles
-    for ( auto& temp_box : m_temp ) {
+    for ( Box& temp_box : m_temp ) {
 
         if ( temp_box.m_key == EMPTY )
             continue;
@@ -256,7 +253,7 @@ void Propagator::get_coords()
     auto part_end = part_it + DIM * m_particle_numbers;
 #endif
 
-    for ( auto& box : m_boxes ) {
+    for ( Box& box : m_boxes ) {
         // write coordinates of each box into corresp vector
         for ( int i = 0; i < DIM; ++i ) {
             // use push_back for automatic reallocation as number of boxes
@@ -265,7 +262,7 @@ void Propagator::get_coords()
         }
 
         // iterate over particles of each box to get their coordiantes as well
-        for ( auto& part : box.m_particles ) {
+        for ( Particle& part : box.m_particles ) {
             for ( int j = 0; j < DIM; ++j ) {
                 // global particle coordinates
                 // write in vector using iterators as number of particles

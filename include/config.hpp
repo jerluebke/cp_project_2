@@ -5,3 +5,4 @@
 #define M       8
 #define EMPTY   1ULL << 0x3F
 
+#define NOEFIELD

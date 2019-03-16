@@ -63,7 +63,9 @@ contains
         idx = mod(int(r), N) + 1
 
         ! compute E- and B-field at new (half time-step) location
+#ifndef NOEFIELD
         E = Efield(r, 0.0d0)
+#endif
         ! B = Bfield(r, 0.0d0)
         B = bfield_arr(:, idx(1), idx(2), idx(3))
 
