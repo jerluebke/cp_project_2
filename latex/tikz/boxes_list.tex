@@ -1,0 +1,36 @@
+\tikzset{%
+    listnode/.style={%
+        draw,fill=blue!20,
+        minimum size=8mm
+    },
+    link/.style={%
+        thick,
+        -stealth,
+        shorten >=1pt
+    },
+    box/.style={%
+        draw,fill=orange!20,
+        minimum height=10mm,
+        minimum width=17mm
+    }
+}
+
+\newcommand{\LinkedList}[2]{%
+    \foreach \elem in #1 {%
+        \node[listnode,right=of #2] (thiselem) {\elem};
+        \draw[link] (#2) -- (thiselem);
+        \coordinate (#2) at (thiselem.east);
+    }
+}
+
+
+\begin{tikzpicture}
+    \foreach [count=\i] \key/\list in {%
+            \boxlabel{k}/{p1,p2}, \boxlabel{k+1}/{p3,p4},
+            \boxlabel{k+2}/{p5}, \boxlabel{k+3}/{p6,p7,p8}} {%
+        \node[box] (thisbox) at (0,-\i) {\key};
+        \LinkedList{\list}{thisbox}
+    }
+\end{tikzpicture}
+
+% vim: set ff=unix tw=79 sw=4 ts=4 et ic ai :

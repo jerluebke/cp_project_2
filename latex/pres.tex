@@ -1,0 +1,45 @@
+%! TEX program = lualatex
+\documentclass[mathserif]{beamer}
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{graphicx}
+    \graphicspath{{./img/}}
+\usepackage[outputdir=latex_build]{minted}
+    \usemintedstyle{friendly}
+\usepackage{tikz}
+\usetikzlibrary{arrows,backgrounds,calc,chains,fit,positioning,shapes,shapes.multipart}
+
+% \usetheme{Singapore}
+% \usecolortheme{dolphin}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+
+
+\newcommand{\boxlabel}[1]{%
+    {\LARGE{\textcolor{blue}{$#1$}}}
+}
+
+
+\title{Tracking Particle Movement in Magnetic Fields}
+\author{Jeremiah Lübke}
+\date{\today}
+\subject{Data Structures and Algorithms}
+
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents
+\end{frame}
+
+\input{slides/data_structures.tex}
+
+\input{slides/box_list.tex}
+
+% \input{slides/box_reinsert.tex}
+
+\end{document}
+
+% vim: set ff=unix tw=79 sw=4 ts=4 et ic ai :

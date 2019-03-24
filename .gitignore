@@ -11,3 +11,4 @@ python/*.c*
 obj
 bin
 tags
+latex_build

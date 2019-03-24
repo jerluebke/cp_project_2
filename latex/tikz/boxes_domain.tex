@@ -1,0 +1,26 @@
+\begin{tikzpicture}[%
+        morton/.style={every path/.style={draw=gray,line width=.5mm}}
+    ]
+
+    \draw[step=2.5cm,gray,thin] (0,0) grid (10,10);
+    \draw (0,0) rectangle (10,10);
+
+    \coordinate [label=above:\boxlabel{k}] (A) at (3.75,3.75);
+    \coordinate [label=above:\boxlabel{k+1}] (B) at (1.25,3.75);
+    \coordinate [label=below:\boxlabel{k+2}] (C) at (3.75,1.25);
+    \coordinate [label=below:\boxlabel{k+3}] (D) at (1.25,1.25);
+
+    \begin{pgfonlayer}{background}
+        \fill[orange!20] (0,0) -- (0,5) -- (5,5) -- (5,0) -- cycle;
+    \end{pgfonlayer}
+
+    \begin{scope}[morton]
+    \draw (A) -- (B);
+    \draw (B) -- (C);
+    \draw (C) -- (D);
+    \end{scope}
+
+    \foreach \p in {A, B, C, D}
+        \fill [black] (\p) circle (3pt);
+
+\end{tikzpicture}

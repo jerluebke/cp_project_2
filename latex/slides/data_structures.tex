@@ -1,0 +1,89 @@
+\def\blocksize{12mm}
+
+\section{Arrays vs Linked Lists}
+\begin{frame}
+    \frametitle{Arrays vs Linked Lists}
+
+    \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[%
+        font=\small\ttfamily,
+        x=\blocksize, y=\blocksize,
+        block/.style={draw,minimum size=\blocksize,inner sep=0pt}
+        ]
+        \tikzset{used/.style={block,fill=red!30,draw=black!50}}
+        \tikzset{free/.style={block,fill=black!20,draw=black!50}}
+
+        \node[free,label=below:\scriptsize 0x09F] (c-1) at (0,0) {};
+        \foreach \l [count=\i from 0] in {100,...,105}
+            \node[used,label=below:\scriptsize 0x\l] (c\i) at (\i+1,0)
+                { arr[\i] };
+        \foreach \l [count=\i from 7] in {106,...,107}
+            \node[free,label=below:\scriptsize 0x\l] (c\i) at (\i,0) {};
+        \node[block,thick,fit=(c-1)(c8)] {};
+
+    \end{tikzpicture}
+    \caption{Array}
+    \end{figure}
+
+    \textbf{Arrays}
+    \begin{itemize}
+        \item represents the computers memory
+        \item random access (i.e. indexing)
+        \item fixed in size and order
+    \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+    \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[%
+        font=\small\ttfamily,
+        list/.style={%
+            draw,minimum size=\blocksize,
+            rectangle split,
+            rectangle split parts=3,
+            rectangle split horizontal,
+            fill=red!30
+        },
+        ->, start chain, thick
+        ]
+
+        \node[list,on chain] (A) {\nodepart{second} 1st node};
+        \node[list,on chain] (B) {\nodepart{second} 2nd node};
+        \node[list,on chain] (C) {\nodepart{second} 3rd node};
+
+        \path[*->] let \p1 = (A.three), \p2 = (A.center) in (\x1,\y2) edge [bend left] ($(B.one)+(0,0.2)$);
+        \path[*->] let \p1 = (B.three), \p2 = (B.center) in (\x1,\y2) edge [bend left] ($(C.one)+(0,0.2)$);
+
+        \path[*->] ($(B.one)+(0.2,0.1)$) edge [bend left] ($(A.three)+(0,-0.05)$);
+        \path[*->] ($(C.one)+(0.1,0.1)$) edge [bend left] ($(B.three)+(0,-0.05)$);
+
+    \end{tikzpicture}
+    \caption{Doubly Linked List}
+    \end{figure}
+
+    \begin{columns}[c]
+        \column{.5\textwidth}
+        \textbf{Linked Lists}
+        \begin{itemize}
+            \item independent of memory layout
+            \item very flexible
+            \item extra space needed to store adresses of predecessor and
+                successor
+        \end{itemize}
+
+        \column{.5\textwidth}
+        \textit{Implementation Example}
+        \begin{minted}[linenos,tabsize=4]{c}
+struct node_t {
+    node_t *prev, *next;
+    void *data;
+};
+        \end{minted}
+    \end{columns}
+
+\end{frame}
