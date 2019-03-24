@@ -1,4 +1,4 @@
-#include "config.hpp"
+#include "config_pp.hpp"
 
 ! compile with
 !   C:\> gcc -I../include -E -P -cpp boris.f90 -o boris_pp.f90
@@ -15,11 +15,11 @@ program test
 
     do i=1,N
         do j=1,N
-            ! do k=1,3
-                k = 2
+            do k=1,3
+                ! k = 2
                 idx = real([i, j, k])
                 b(:, i, j, k) = b_field_const_z(idx)
-            ! end do
+            end do
         end do
     end do
 

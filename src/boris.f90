@@ -63,7 +63,7 @@ contains
         idx = mod(int(r), N) + 1
 
         ! compute E- and B-field at new (half time-step) location
-#ifndef NOEFIELD
+#if EFIELD
         E = Efield(r, 0.0d0)
 #else
         E = 0

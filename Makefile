@@ -4,7 +4,7 @@ PPFLAGS = -E -P -cpp
 # CFLAGS 	= -Wall -Wextra -0g -ggdb3 -fPIC
 CFLAGS 	= -Wall -Wextra -O3 -fPIC -DNDEBUG
 XFLAGS  = -xc++ -std=c++17 -Iinclude/
-NOWARN 	= -Wno-unused-function # -Wno-unused-dummy-argument
+NOWARN 	= -Wno-unused-function -Wno-unused-dummy-argument
 PPCMD 	= $(CC) $(PPFLAGS)
 PYCMD	= python3 python/setup.py build_ext
 
@@ -62,15 +62,15 @@ obj/ftest.o: obj/ftest_pp.f90
 	$(FC) $(CFLAGS) -c $^ -o $@
 
 obj/boris_pp.f90: src/boris.f90 obj/config_pp.hpp
-	# $(PPCMD) -dD include/config.hpp -o obj/config_pp.hpp
-	$(PPCMD) $^ -o $@
+	$(PPCMD) -Iobj $< -o $@
 
 obj/ftest_pp.f90: test/ftest.f90 obj/config_pp.hpp
-	$(PPCMD) $^ -o $@
+	$(PPCMD) -Iobj $< -o $@
 
 obj/config_pp.hpp: include/config.hpp
 	$(PPCMD) -dD $^ -o $@
 
 
 clean:
-	rm -f $(ALLOBJ) $(ALLBIN) $(PYSO) $(FSRC_PP) boris_module.mod
+	rm -f $(ALLOBJ) $(ALLBIN) $(PYSO) $(FSRC_PP) \
+		obj/config_pp.hpp boris_module.mod
