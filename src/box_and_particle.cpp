@@ -14,8 +14,6 @@ void boris_step_fortran( double r[],
 extern void temp_bfield_const_z( double *b );
 extern void temp_bfield_random( double *b );
 
-#define BFIELD_FUNC temp_bfield_random
-
 
 
 /*==========================================================================*/

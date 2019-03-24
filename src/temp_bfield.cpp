@@ -1,9 +1,6 @@
 #include <random>
 #include "box_and_particle.hpp"
 
-#define RANDGEN_MEAN    0.0f
-#define RANDGEN_STDDEV  0.1f
-
 
 struct RandGen {
     std::random_device m_rd;
