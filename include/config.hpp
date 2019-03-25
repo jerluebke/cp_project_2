@@ -30,7 +30,7 @@
 
 // mean and stddev of normal distribution from which to draw random numbers
 #define RANDGEN_MEAN    0.0f
-#define RANDGEN_STDDEV  0.1f
+#define RANDGEN_STDDEV  0.5f
 
 
 

@@ -20,7 +20,7 @@ M = 8
 LABELFACTOR = 4
 
 # movie settings
-FRAMES  = 500
+FRAMES  = 360
 FPS     = 30
 DPI     = 300
 
@@ -31,7 +31,7 @@ DPI     = 300
 # PARTICLE CONFIG   #
 #####################
 
-PARTICLE_NUMBERS = 50
+PARTICLE_NUMBERS = 80
 
 # set up propagator
 #  init_particles = np.array([
@@ -47,11 +47,11 @@ init_particles = np.empty((PARTICLE_NUMBERS, 8), dtype=np.float64)
 # m, q
 init_particles[:,6:] = 1
 # position
-init_particles[:,:3] = np.random.normal(32, 2, (PARTICLE_NUMBERS, 3))
+init_particles[:,:3] = np.random.normal(N//2, 2, (PARTICLE_NUMBERS, 3))
 # x velocity
 init_particles[:,3] = np.random.normal(10, 4, (PARTICLE_NUMBERS,))
 # y, z velocity
-init_particles[:,4:6] = np.random.normal(0, 8, (PARTICLE_NUMBERS, 2))
+init_particles[:,4:6] = np.random.normal(0, 4, (PARTICLE_NUMBERS, 2))
 
 init_box = np.array([0, 4, 4], dtype=np.int32)
 pg = propagator.PyPropagator(init_particles, init_box)
@@ -80,6 +80,20 @@ for a in (axy, axz, ayz):
     a.grid(True)
 
 fig.tight_layout()
+
+
+# earth
+earth_coords = [N*M, N*M//2, N*M//2]
+earth_kwds = dict(color='green', marker='o', ms=5, zorder=9)
+axy.plot([earth_coords[0]], [earth_coords[1]], **earth_kwds)
+axz.plot([earth_coords[0]], [earth_coords[2]], **earth_kwds)
+ayz.plot([earth_coords[1]], [earth_coords[2]], **earth_kwds)
+
+# source
+source_coords = init_box * N + N//2
+axy.plot([source_coords[0]], [source_coords[1]], 'yo', ms=9)
+axz.plot([source_coords[0]], [source_coords[2]], 'yo', ms=9)
+ayz.plot([source_coords[1]], [source_coords[2]], 'yo', ms=9)
 
 
 # plot initial data
@@ -135,10 +149,14 @@ def update(f):
 
     # number of boxes decreased: remove them
     elif new < old:
-        for i in range(new, old-1):
+        for i in range(new, old):
             for j in range(3):
+                # remove from axis and set None
                 boxes[j][i].remove()
-                del boxes[j][i]
+                boxes[j][i] = None
+        # filter None elements from lists
+        for j in range(3):
+            boxes[j] = [b for b in boxes[j] if b]
 
     # return artists to be drawn
     return [*particles, *[c for b in boxes for c in b]]

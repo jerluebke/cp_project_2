@@ -1,0 +1,30 @@
+\section{Algorithms}
+\begin{frame}[fragile]
+    \frametitle{Algorithms}
+    \begin{algorithm}[H]
+        \DontPrintSemicolon
+        \ForEach{box in active-boxes}{%
+            \ForEach{particle in box}{%
+                particle.boris\_step(box.bfield)\;
+                \If{particle went out of box}{%
+                    compute new box\;
+                    \lIf{new box out of bounds}{remove particle}
+                    \lElse{place particle in temp-box with new key}
+                }
+            }
+        }
+
+        \caption{advance}
+    \end{algorithm}
+
+    \begin{algorithm}[H]
+        \DontPrintSemicolon
+        \ForEach{tbox in temp-boxes}{%
+            find or create abox in active-boxes with abox.key = tbox.key\;
+            move particles from tbox to abox\;
+        }
+        remove empty boxes in active-boxes\;
+
+        \caption{reinsert}
+    \end{algorithm}
+\end{frame}

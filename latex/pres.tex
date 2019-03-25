@@ -1,15 +1,13 @@
 %! TEX program = lualatex
-% TODO:
-%   adjust label on grids
-%   add labels in videos
-%   embed videos in slides
 \documentclass[mathserif]{beamer}
 \usepackage{fontspec}
 \usepackage{amsmath}
 \usepackage{graphicx}
     \graphicspath{{./img/}}
+\usepackage{multimedia}
 \usepackage[outputdir=latex_build]{minted}
     \usemintedstyle{friendly}
+\usepackage[linesnumbered,vlined,ruled]{algorithm2e}
 \usepackage{tikz}
 \usetikzlibrary{arrows,backgrounds,calc,chains,fit,positioning,shapes,shapes.multipart}
 
@@ -42,14 +40,17 @@
 
 \input{slides/domain.tex}
 
-\section{Result}
-\frame{\textit{show result video...}}
-
 \input{slides/box_list.tex}
+
+\input{slides/results.tex}
 
 \input{slides/data_structures.tex}
 
 \input{slides/implementation.tex}
+
+\input{slides/algorithms.tex}
+
+\input{slides/references.tex}
 
 \end{document}
 

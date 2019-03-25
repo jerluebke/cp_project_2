@@ -30,7 +30,7 @@ struct Box {
     \begin{minted}[linenos,tabsize=4]{c++}
 class Propagator {
 public:
-    void timestep();
+    void timestep();    // calls advance, reinsert, get_coords
     vector<int>& get_particle_coords();
     vector<int>& get_box_coords();
 
@@ -42,9 +42,9 @@ private:
     vector<int> particle_coords;
     vector<int> box_coords;
 
-    void advance();
-    void reinsert();
-    void get_coords();
+    void advance();     // Algorithm 1
+    void reinsert();    // Algorithm 2
+    void get_coords();  // copys coords from lists to vectors
 }
     \end{minted}
 
