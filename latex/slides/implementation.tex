@@ -1,0 +1,53 @@
+\section{Implementation}
+\begin{frame}[fragile]
+    \frametitle{Implementation}
+
+    \textit{Particle Structure}
+    \begin{minted}[linenos,tabsize=4,breaklines]{c++}
+struct Particle {
+    double r[3], v[3], q, m;
+    void boris_step( double bfield[], double dt );
+}
+    \end{minted}
+
+    \textit{Box Structure}
+    \begin{minted}[linenos,tabsize=4]{c++}
+struct Box {
+    uint64_t key;
+    int coords[3];
+    double bfield[3*N*N*N];
+    list<Particle> particles;
+    void compute_bfield();
+}
+    \end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+    \textit{Propagator Class}
+    \begin{minted}[linenos,tabsize=4]{c++}
+class Propagator {
+public:
+    void timestep();
+    vector<int>& get_particle_coords();
+    vector<int>& get_box_coords();
+
+private:
+    int particle_numbers;
+    double dt;
+    list<Box> active_boxes;
+    list<Box> temp_boxes;
+    vector<int> particle_coords;
+    vector<int> box_coords;
+
+    void advance();
+    void reinsert();
+    void get_coords();
+}
+    \end{minted}
+
+\end{frame}
+
+% vim: set ff=unix tw=79 sw=4 ts=4 et ic ai :

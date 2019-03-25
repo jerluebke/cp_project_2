@@ -1,0 +1,46 @@
+\section{Motivation}
+\begin{frame}
+    \frametitle{Motivation}
+    \textbf{Consider the following...}
+    \begin{itemize}
+        \item A supernova emits a large amount of charged particles into the
+            interstellar medium
+        \item After their long journey through the turbolent magnetic field of
+            the ISM some of those particles hit the Earth and can be measured
+        \item But the scientists cannot easily determine the particles source,
+            since there are many possible sources and the particles paths are
+            just as turbolent as the magnetic field, through which they
+            travelled
+    \end{itemize}
+
+    \textbf{The Problem...}
+    \begin{itemize}
+        \item Modelling the magnetic field of the ISM can be done
+            stochastically for each grid point
+        \item But the domain is very large...
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \textbf{How do we solve this?}
+    \begin{itemize}
+        \item One possibility: Trace the particles and compute the bfield only
+            in the relevant areas
+    \end{itemize}
+
+    \textbf{Idea}
+    \begin{itemize}
+        \item use two grids:
+        \begin{enumerate}
+            \item fine particle grid
+            \item coarse box grid
+        \end{enumerate}
+        \item A Box is a cell on the coarse grid containing $N^3$
+            particle-gridpoints
+        \item do bookkeeping concerning the occupied boxes (starting from a
+            known configuration)
+        \item compute magnetic field only in the occupied boxes
+    \end{itemize}
+\end{frame}
+
+% vim: set ff=unix tw=79 sw=4 ts=4 et ic ai :

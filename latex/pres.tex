@@ -1,4 +1,8 @@
 %! TEX program = lualatex
+% TODO:
+%   adjust label on grids
+%   add labels in videos
+%   embed videos in slides
 \documentclass[mathserif]{beamer}
 \usepackage{fontspec}
 \usepackage{amsmath}
@@ -34,11 +38,18 @@
     \tableofcontents
 \end{frame}
 
-\input{slides/data_structures.tex}
+\input{slides/motivation.tex}
+
+\input{slides/domain.tex}
+
+\section{Result}
+\frame{\textit{show result video...}}
 
 \input{slides/box_list.tex}
 
-% \input{slides/box_reinsert.tex}
+\input{slides/data_structures.tex}
+
+\input{slides/implementation.tex}
 
 \end{document}
 

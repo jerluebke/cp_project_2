@@ -12,6 +12,13 @@
         draw,fill=orange!20,
         minimum height=10mm,
         minimum width=17mm
+    },
+    head/.style={%
+        draw,
+        rectangle,
+        rounded corners,
+        minimum height=12mm,
+        minimum width=20mm,
     }
 }
 
@@ -24,11 +31,14 @@
 }
 
 
-\begin{tikzpicture}
+\begin{tikzpicture}[thick]
+    \node[head] (prev) at (0,0) {\LARGE Active Boxes};
     \foreach [count=\i] \key/\list in {%
             \boxlabel{k}/{p1,p2}, \boxlabel{k+1}/{p3,p4},
             \boxlabel{k+2}/{p5}, \boxlabel{k+3}/{p6,p7,p8}} {%
-        \node[box] (thisbox) at (0,-\i) {\key};
+        \node[box,below=of prev] (thisbox) {\key};
+        \draw[link] (prev) -- (thisbox);
+        \coordinate (prev) at (thisbox.south);
         \LinkedList{\list}{thisbox}
     }
 \end{tikzpicture}
