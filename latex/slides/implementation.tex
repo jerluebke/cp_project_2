@@ -1,6 +1,7 @@
-\section{Implementation}
+\subsection{Structures and Classes}
 \begin{frame}[fragile]
-    \frametitle{Implementation}
+    \textbf{Structures and Classes}
+    \medskip
 
     \textit{Particle Structure}
     \begin{minted}[linenos,tabsize=4,breaklines]{c++}
@@ -9,6 +10,7 @@ struct Particle {
     void boris_step( double bfield[], double dt );
 }
     \end{minted}
+    \medskip
 
     \textit{Box Structure}
     \begin{minted}[linenos,tabsize=4]{c++}
@@ -42,8 +44,8 @@ private:
     vector<int> particle_coords;
     vector<int> box_coords;
 
-    void advance();     // Algorithm 1
-    void reinsert();    // Algorithm 2
+    void advance();     // see Algorithm 1
+    void reinsert();    // see Algorithm 2
     void get_coords();  // copys coords from lists to vectors
 }
     \end{minted}
