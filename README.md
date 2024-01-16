@@ -4,7 +4,7 @@ Ruhr-University Bochum
 
 ## Aim
 Tracking the motion of charged particles in a possibly large domain with
-(turbolent) magnetic fields
+(turbulent) magnetic fields
 
 ## Idea
  * There exist two levels of grids (or two frames of reference): a fine
